@@ -93,20 +93,19 @@ export default function Dashboard() {
     setAiResponse('')
     const ctx = `homepitch.ro GA4 data (Apr 13–May 12 2026): ${stats.totU} users, ${stats.totS} sessions. April avg DAU: ${stats.aprAvg}, May avg DAU: ${stats.mayAvg} (−${Math.round((1-stats.mayAvg/stats.aprAvg)*100)}%). Owners onboarded: ${stats.totProp}. Buyers onboarded: ${stats.totCum}. Briefs posted: ${stats.totCer}. Offer accepted: 0. Mobile: 68% (10% bounce). Top city: Bucharest 55%. Facebook = biggest channel. SEO = 100% branded only.`
     try {
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
+      const res = await fetch('/api/claude', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 1000,
           system: 'You are a senior growth analyst for homepitch.ro, a Romanian reverse real estate marketplace. Give sharp, specific, actionable advice in bullet points. Use emoji section headers. Be direct and concise.',
           messages: [{ role: 'user', content: ctx + '\n\nQuestion: ' + question }]
         })
       })
       const data = await res.json()
+      if (data.error) throw new Error(data.error)
       setAiResponse(data.content?.[0]?.text || 'No response.')
     } catch (e) {
-      setAiResponse('Error connecting to Claude API: ' + e.message)
+      setAiResponse('❌ ' + e.message)
     }
     setAiLoading(false)
   }
